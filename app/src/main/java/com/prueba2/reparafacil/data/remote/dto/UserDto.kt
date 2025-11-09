@@ -1,0 +1,23 @@
+package com.prueba2.reparafacil.data.remote.dto
+
+import com.google.gson.annotations.SerializedName
+
+/**
+ * DTO = Data Transfer Object
+ * Este objeto representa los datos que VIAJAN entre tu app y el servidor
+ */
+data class UserDto(
+    @SerializedName("id")
+    val id: Int,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("email")
+    val email: String?,
+
+    @SerializedName("profilePicture")
+    val profilePicture: String?
+)
+
+
