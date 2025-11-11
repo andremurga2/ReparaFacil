@@ -4,73 +4,39 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.prueba2.reparafacil.repository.ScheduleRepository
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AgendaScreen(servicioSeleccionado: String = "general") {
+fun AgendaScreen(servicioSeleccionado: String) {
+    val context = LocalContext.current
+    val repo = remember { ScheduleRepository(context) }
+    val scope = rememberCoroutineScope()
+    val schedules by repo.getAllSchedules().collectAsState(initial = emptyList())
 
-    val todasLasCitas = mapOf(
-        "lavadora" to listOf(
-            Cita("Reparación Lavadora", "Lunes 10 Nov - 10:00 AM", "Técnico: Juan Pérez"),
-            Cita("Revisión Lavadora Samsung", "Martes 11 Nov - 16:00 PM", "Técnico: Ana Torres")
-        ),
-        "aire" to listOf(
-            Cita("Instalación Aire Acondicionado", "Miércoles 12 Nov - 09:30 AM", "Técnico: Carlos Díaz"),
-            Cita("Mantenimiento Aire LG", "Viernes 14 Nov - 14:00 PM", "Técnico: Marta Silva")
-        ),
-        "calefon" to listOf(
-            Cita("Revisión de Calefón", "Martes 18 Nov - 11:15 AM", "Técnico: Marta Silva"),
-            Cita("Cambio de Termostato", "Jueves 20 Nov - 15:45 PM", "Técnico: Pedro Gómez")
-        ),
-        "general" to listOf(
-            Cita("Diagnóstico General", "Lunes 10 Nov - 10:00 AM", "Técnico: Equipo ReparaFácil")
-        )
-    )
-
-    val citasMostradas = todasLasCitas[servicioSeleccionado] ?: todasLasCitas["general"]!!
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "🗓️ Agenda - ${servicioSeleccionado.capitalize()}",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+    Scaffold(topBar = { TopAppBar(title = { Text("Agenda - $servicioSeleccionado") }) }) { padding ->
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .padding(16.dp)
         ) {
-            items(citasMostradas) { cita ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(3.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text("📌 ${cita.servicio}", style = MaterialTheme.typography.bodyLarge)
-                        Text("⏰ ${cita.fecha}", style = MaterialTheme.typography.bodyMedium)
-                        Text("👷 ${cita.tecnico}", style = MaterialTheme.typography.bodyMedium)
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(schedules) { item ->
+                    Card(modifier = Modifier.fillMaxWidth()) {
+                        Column(Modifier.padding(12.dp)) {
+                            Text(item.servicio, style = MaterialTheme.typography.titleMedium)
+                            Text("Fecha: ${item.fecha}")
+                            Text("Dirección: ${item.direccion}")
+                            Text("Contacto: ${item.contacto}")
+                        }
                     }
                 }
             }
         }
     }
 }
-
-data class Cita(
-    val servicio: String,
-    val fecha: String,
-    val tecnico: String
-)

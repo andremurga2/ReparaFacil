@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.room.common.jvm)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -72,8 +73,14 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     // Coil - Para cargar imágenes desde URLs (opcional)
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation("androidx.navigation:navigation-compose:2.8.3") // o la última versión
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.google.accompanist:accompanist-permissions:0.36.0")
+
+
+
 
 }

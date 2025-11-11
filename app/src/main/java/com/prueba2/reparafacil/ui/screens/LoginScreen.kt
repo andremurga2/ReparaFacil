@@ -5,10 +5,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     onClienteLogin: (String, String) -> Unit,
@@ -17,64 +17,45 @@ fun LoginScreen(
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var tipoUsuario by remember { mutableStateOf("cliente") }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = "ReparaFácil",
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        Button(
-            onClick = { onClienteLogin("Benjamín Verdejo", email) },
+    Scaffold(
+        topBar = { TopAppBar(title = { Text("ReparaFácil - Iniciar Sesión") }) }
+    ) { padding ->
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Entrar como Cliente")
-        }
+            OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text("Email") })
+            Spacer(modifier = Modifier.height(12.dp))
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Contraseña") },
+                visualTransformation = PasswordVisualTransformation()
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
+            Text("Tipo de usuario:")
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                FilterChip(selected = tipoUsuario == "cliente", onClick = { tipoUsuario = "cliente" }, label = { Text("Cliente") })
+                FilterChip(selected = tipoUsuario == "tecnico", onClick = { tipoUsuario = "tecnico" }, label = { Text("Técnico") })
+            }
 
-        OutlinedButton(
-            onClick = { onTecnicoLogin("Benjamín Verdejo", email) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-        ) {
-            Text("Entrar como Técnico")
-        }
+            Spacer(modifier = Modifier.height(20.dp))
+            Button(onClick = {
+                if (tipoUsuario == "cliente") onClienteLogin("Cliente", email)
+                else onTecnicoLogin("Técnico", email)
+            }) {
+                Text("Ingresar")
+            }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        TextButton(onClick = onRegisterClick) {
-            Text("¿No tienes cuenta? Regístrate")
+            Spacer(modifier = Modifier.height(12.dp))
+            TextButton(onClick = onRegisterClick) { Text("Crear cuenta nueva") }
         }
     }
 }

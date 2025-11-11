@@ -1,4 +1,4 @@
-package com.prueba2.reparafacil.navigation
+package com.prueba2.reparafacil.ui.navegation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
@@ -6,15 +6,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.prueba2.reparafacil.AppDependencies
 import com.prueba2.reparafacil.ui.screens.*
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(appDependencies: AppDependencies) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "login") {
-
-        // 🔐 LOGIN
+    NavHost(
+        navController = navController,
+        startDestination = "login"
+    ) {
         composable("login") {
             LoginScreen(
                 onClienteLogin = { nombre, email ->
@@ -33,70 +35,50 @@ fun AppNavigation() {
             )
         }
 
-        // 🏠 Cliente
         composable(
-            "homeCliente/{nombre}/{email}",
+            route = "homeCliente/{nombre}/{email}",
             arguments = listOf(
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("email") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            HomeClienteScreen(navController, nombre, email)
+            val nombre = backStackEntry.arguments?.getString("nombre").orEmpty()
+            val email = backStackEntry.arguments?.getString("email").orEmpty()
+            HomeClienteScreen(navController, nombre, email, appDependencies)
         }
 
-        // 🧰 Técnico
         composable(
-            "homeTecnico/{nombre}/{email}",
+            route = "homeTecnico/{nombre}/{email}",
             arguments = listOf(
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("email") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            HomeTecnicoScreen(navController, nombre, email)
+            val nombre = backStackEntry.arguments?.getString("nombre").orEmpty()
+            val email = backStackEntry.arguments?.getString("email").orEmpty()
+            HomeTecnicoScreen(navController, nombre, email, appDependencies)
         }
 
-        // 📋 Agenda (ruta universal con parámetro)
         composable(
-            "agenda/{servicio}",
-            arguments = listOf(navArgument("servicio") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val servicio = backStackEntry.arguments?.getString("servicio") ?: ""
-            AgendaScreen(servicioSeleccionado = servicio)
-        }
-
-        // 🪪 Garantías
-        composable(
-            "garantia/{tipoUsuario}",
-            arguments = listOf(navArgument("tipoUsuario") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val tipoUsuario = backStackEntry.arguments?.getString("tipoUsuario") ?: "cliente"
-            GarantiaScreen(navController, tipoUsuario)
-        }
-
-        // 👤 Perfil
-        composable(
-            "perfil/{nombre}/{email}",
+            route = "perfil/{nombre}/{email}",
             arguments = listOf(
                 navArgument("nombre") { type = NavType.StringType },
                 navArgument("email") { type = NavType.StringType }
             )
         ) { backStackEntry ->
-            val nombre = backStackEntry.arguments?.getString("nombre") ?: ""
-            val email = backStackEntry.arguments?.getString("email") ?: ""
-            PerfilScreen(navController, nombre, email)
+            val nombre = backStackEntry.arguments?.getString("nombre").orEmpty()
+            val email = backStackEntry.arguments?.getString("email").orEmpty()
+            PerfilScreen(navController, nombre, email) // ✅ Solo 3 parámetros
         }
 
-        // 📝 Registro
         composable("register") {
-            RegisterScreen(onRegisterSuccess = {
-                navController.navigate("login") {
-                    popUpTo("register") { inclusive = true }
+            RegisterScreen(
+                onRegisterSuccess = {
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
+                    }
                 }
-            })
+            )
         }
     }
 }

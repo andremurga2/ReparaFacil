@@ -3,52 +3,40 @@ package com.prueba2.reparafacil.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.prueba2.reparafacil.AppDependencies
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeClienteScreen(navController: NavController, nombre: String, email: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("🏠 Bienvenido $nombre", style = MaterialTheme.typography.headlineSmall)
-        Spacer(modifier = Modifier.height(8.dp))
-        Text("📧 $email")
-        Spacer(modifier = Modifier.height(24.dp))
+fun HomeClienteScreen(
+    navController: NavController,
+    nombre: String,
+    email: String,
+    appDependencies: AppDependencies
+) {
+    Scaffold(topBar = { TopAppBar(title = { Text("Bienvenido, $nombre") }) }) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text("Selecciona una acción:", style = MaterialTheme.typography.titleMedium)
 
-        Button(
-            onClick = { navController.navigate("agenda/lavadora") },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) { Text("🧺 Reparar Lavadora") }
+            Button(onClick = { navController.navigate("agenda/servicio_basico") }) {
+                Text("Agendar Servicio")
+            }
 
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = { navController.navigate("agenda/aire") },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) { Text("❄️ Reparar Aire Acondicionado") }
+            Button(onClick = { navController.navigate("garantia/cliente") }) {
+                Text("Ver Garantías")
+            }
 
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = { navController.navigate("agenda/calefon") },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) { Text("🔥 Reparar Calefón") }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = { navController.navigate("garantia/cliente") },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) { Text("🪪 Ver mis Garantías") }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Button(
-            onClick = { navController.navigate("perfil/$nombre/$email") },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        ) { Text("👤 Mi Perfil") }
+            Button(onClick = { navController.navigate("perfil/$nombre/$email") }) {
+                Text("Mi Perfil")
+            }
+        }
     }
 }

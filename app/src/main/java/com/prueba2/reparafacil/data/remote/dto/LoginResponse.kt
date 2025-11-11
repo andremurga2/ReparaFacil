@@ -3,8 +3,8 @@ package com.prueba2.reparafacil.data.remote.dto
 import com.google.gson.annotations.SerializedName
 
 /**
- * DTO para la respuesta de login
- * Datos que RECIBIMOS del servidor tras login exitoso
+ * DTO para la respuesta de inicio de sesión.
+ * Representa los datos que RECIBIMOS del servidor tras un login exitoso.
  */
 data class LoginResponse(
     @SerializedName("id")
@@ -23,8 +23,8 @@ data class LoginResponse(
     val lastName: String,
 
     @SerializedName("accessToken")
-    val accessToken: String,  // 🔑 TOKEN JWT - Lo guardamos en SessionManager
+    val accessToken: String, // 🔑 Token JWT - se guarda en SessionManager
 
     @SerializedName("refreshToken")
-    val refreshToken: String?  // Opcional - Para renovar el token
+    val refreshToken: String? = null // Opcional: para renovar el token
 )
