@@ -32,9 +32,14 @@ Ejecutar en un emulador o dispositivo Android 16+, preferentemente con cámara h
 Estructura de carpetas:
 - ui.screens → Pantallas Compose (Login, Registro, Home, Perfil, Agenda, Garantía).
 - ui.navigation → Gestión de rutas y argumentos entre pantallas.
+- ui.components → Aca se guarda el ImagePickerDialog
+- ui.navegation → Se almacena todo lo que es la navegacion de la aplicacion a traves de AppNavigation.kt
 - viewmodel → Estado y lógica de UI.
-- repository → Acceso a datos y persistencia local.
-- data → DTOs, recursos y utilidades.
+- viewmodel.state → Define los estados de cada pantalla (carga, éxito, error) y mantiene los datos reactivos.
+- repository → Acceso a datos y persistencia local, además de la lógica de negocio simple para obtener/guardar información.
+- data → DTOs, recursos y utilidades generales.
+- data.local → Maneja persistencia local, como SessionManager y almacenamiento de avatar con DataStore.
+- data.remote → Comunicación con APIs externas, DTOs de request/response y servicios como ApiService.
 
 Gestión de estado: ViewModel + StateFlow para mostrar avatar, mensajes de error y cargar datos.
 Navegación: Stack navigation con argumentos (nombre/email), botón de backstack para cerrar pantallas y navegación condicional según tipo de usuario.
