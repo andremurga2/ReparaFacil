@@ -1,6 +1,7 @@
 package com.prueba2.reparafacil.ui.screens
 
 import android.net.Uri
+import android.os.Environment
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
@@ -16,52 +18,48 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
-import com.prueba2.reparafacil.R
 import com.prueba2.reparafacil.viewmodel.ProfileViewModel
 import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun PerfilScreen(
     navController: NavController,
     nombre: String,
-    email: String
+    email: String,
+    viewModel: ProfileViewModel = viewModel()
 ) {
     val context = LocalContext.current
-    val viewModel: ProfileViewModel = viewModel(
-        factory = androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory(
-            context.applicationContext as android.app.Application
-        )
-    )
+    val imageUri by viewModel.avatarUri.collectAsState() // Avatar actual
 
-    val uiState by viewModel.uiState.collectAsState()
+    // Archivo temporal para la cámara
+    var cameraImageUri by remember { mutableStateOf<Uri?>(null) }
 
-    var cameraUri by remember { mutableStateOf<Uri?>(null) }
-
-    // Launcher para seleccionar imagen desde galería
-    val pickImageLauncher = rememberLauncherForActivityResult(
+    // Launcher galería
+    val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
         uri?.let { viewModel.updateAvatar(it) }
     }
 
-    // Launcher para tomar foto con cámara
-    val takePictureLauncher = rememberLauncherForActivityResult(
+    // Launcher cámara
+    val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
-        if (success) cameraUri?.let { viewModel.updateAvatar(it) }
+        if (success) {
+            cameraImageUri?.let { viewModel.updateAvatar(it) }
+        }
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Avatar
         Image(
             painter = rememberAsyncImagePainter(
-                model = uiState.avatarUri ?: R.drawable.avatar_default
+                model = imageUri ?: "file:///android_asset/avatar_default.jpg"
             ),
             contentDescription = "Avatar",
             modifier = Modifier
@@ -75,21 +73,22 @@ fun PerfilScreen(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(onClick = { pickImageLauncher.launch("image/*") }) {
+            Button(onClick = { galleryLauncher.launch("image/*") }) {
                 Text("Galería")
             }
 
             Button(onClick = {
-                // Crear archivo temporal justo antes de lanzar la cámara
-                val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-                val storageDir = context.getExternalFilesDir("Pictures")
-                val tempFile = File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-                cameraUri = FileProvider.getUriForFile(
+                // Crear archivo temporal solo cuando se use la cámara
+                val tempFile = File.createTempFile(
+                    "JPEG_${System.currentTimeMillis()}_", ".jpg",
+                    context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+                )
+                cameraImageUri = FileProvider.getUriForFile(
                     context,
                     "${context.packageName}.provider",
                     tempFile
                 )
-                cameraUri?.let { takePictureLauncher.launch(it) }
+                cameraLauncher.launch(cameraImageUri!!)
             }) {
                 Text("Cámara")
             }
@@ -104,15 +103,6 @@ fun PerfilScreen(
 
         Button(onClick = { navController.popBackStack() }) {
             Text("Cerrar")
-        }
-
-        uiState.error?.let { errorMsg ->
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = errorMsg,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 

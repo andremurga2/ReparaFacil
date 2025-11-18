@@ -1,80 +1,33 @@
 package com.prueba2.reparafacil.viewmodel
 
-import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import com.prueba2.reparafacil.AppDependencies
-import com.prueba2.reparafacil.viewmodel.state.ProfileUiState
+import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class ProfileViewModel(application: Application) : AndroidViewModel(application) {
+class ProfileViewModel : ViewModel() {
 
-    private val dependencies = AppDependencies.getInstance(application)
-    private val userRepository = dependencies.userRepository
-    private val avatarRepository = dependencies.avatarRepository
+    // URI del avatar (galería o cámara)
+    private val _avatarUri = MutableStateFlow<Uri?>(null)
+    val avatarUri: StateFlow<Uri?> = _avatarUri
 
-    private val _uiState = MutableStateFlow(ProfileUiState())
-    val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
+    // Mensaje de error opcional
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
 
-    init {
-        loadSavedAvatar()
-    }
-
-    /** Carga avatar guardado en DataStore al iniciar */
-    fun loadSavedAvatar() {
-        viewModelScope.launch {
-            avatarRepository.getAvatarUri().collect { uri ->
-                _uiState.update { it.copy(avatarUri = uri) }
-            }
-        }
-    }
-
-    /** Carga los datos de un usuario */
-    fun loadUser(id: Int) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-
-            val result = runCatching { userRepository.fetchUser(id).getOrThrow() }
-
-            result.fold(
-                onSuccess = { user ->
-                    _uiState.update {
-                        it.copy(
-                            userName = user.name,
-                            userEmail = user.email ?: "Sin email",
-                            avatarUri = user.profilePicture?.let { Uri.parse(it) },
-                            isLoading = false,
-                            error = null
-                        )
-                    }
-                },
-                onFailure = { e ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = e.localizedMessage ?: "Error al cargar usuario"
-                        )
-                    }
-                }
-            )
-        }
-    }
-
-    /** Actualiza el avatar y lo guarda en DataStore */
+    // Actualizar avatar desde galería
     fun updateAvatar(uri: Uri?) {
-        viewModelScope.launch {
-            avatarRepository.saveAvatarUri(uri)
-            // Flow se encargará de actualizar automáticamente el estado
+        if (uri != null) {
+            _avatarUri.value = uri
+            _errorMessage.value = null
+        } else {
+            _errorMessage.value = "No se pudo seleccionar la imagen."
         }
     }
 
-    /** Limpia cualquier error */
-    fun clearError() {
-        _uiState.update { it.copy(error = null) }
+    // Cargar avatar guardado al iniciar (opcional)
+    fun loadSavedAvatar() {
+        // Aquí podrías cargar la URI guardada de DataStore o SharedPreferences
+        // Por ahora, nada: se usará el avatar por defecto de assets
     }
 }
