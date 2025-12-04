@@ -27,13 +27,15 @@ RUN apk add --no-cache \
     fftw-dev \
     build-base \
     python3 \
+    make \
+    g++ \
     && rm -rf /var/cache/apk/*
 
 # Copiar package files
 COPY package*.json ./
 
-# Instalar solo dependencias de producción
-RUN npm ci --only=production
+# Instalar solo dependencias de producción (omitiendo dev)
+RUN npm ci --omit=dev
 
 # Copiar build desde builder stage
 COPY --from=builder /app/dist ./dist
