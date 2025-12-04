@@ -34,6 +34,9 @@ RUN apk add --no-cache \
 # Copiar package files
 COPY package*.json ./
 
+# Configurar npm para usar binarios precompilados de sharp
+ENV SHARP_IGNORE_GLOBAL_LIBVIPS=1
+
 # Instalar solo dependencias de producción (omitiendo dev)
 RUN npm ci --omit=dev
 
